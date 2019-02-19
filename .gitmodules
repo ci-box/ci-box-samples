@@ -1,0 +1,6 @@
+[submodule "ci-box/ci-box-lava-master"]
+	path = ci-box/ci-box-lava-master
+	url = git@github.com:ci-box/ci-box-lava-master.git
+[submodule "ci-box/ci-box-lava-worker"]
+	path = ci-box/ci-box-lava-worker
+	url = git@github.com:ci-box/ci-box-lava-worker.git

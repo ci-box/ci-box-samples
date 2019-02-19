@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+# LAVA server instance inheriting from ci-box-lava-master
+  lava-server:
+    container_name: lava_simple_server
+    hostname: lava_simple_server
+    extends:
+      file: ../ci-box/ci-box-lava-master/docker-compose.yml
+      service: lava-server
+    build:
+      args:
+        admin_user: admin
+        admin_password: password
+        workers: lava_simple_worker
+    ports:
+      - "8080:80"
+    volumes:
+      - ./devices:/etc/lava-server/dispatcher-config/devices
+
+# LAVA worker instance inheriting from ci-box-lava-worker
+  lava-worker:
+    container_name: lava_simple_worker
+    hostname: lava_simple_worker
+    extends:
+      file: ../ci-box/ci-box-lava-worker/docker-compose.yml
+      service: lava-worker
+    build:
+      args:
+        server: lava_simple_server
