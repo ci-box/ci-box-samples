@@ -4,3 +4,6 @@
 [submodule "ci-box/ci-box-lava-worker"]
 	path = ci-box/ci-box-lava-worker
 	url = git@github.com:ci-box/ci-box-lava-worker.git
+[submodule "ci-box/ci-box-jenkins"]
+	path = ci-box/ci-box-jenkins
+	url = https://github.com/ci-box/ci-box-jenkins
