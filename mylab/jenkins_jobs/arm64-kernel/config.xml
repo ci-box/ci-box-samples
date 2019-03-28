@@ -1,0 +1,86 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>ARM64 QCOMLT KERNEL</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.3">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://git.linaro.org/people/loic.poulain/linux.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>qcomlt-4.14-loic</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.CheckoutOption>
+        <timeout>120</timeout>
+      </hudson.plugins.git.extensions.impl.CheckoutOption>
+      <hudson.plugins.git.extensions.impl.CloneOption>
+        <shallow>false</shallow>
+        <noTags>false</noTags>
+        <reference></reference>
+        <timeout>120</timeout>
+        <depth>0</depth>
+        <honorRefspec>false</honorRefspec>
+      </hudson.plugins.git.extensions.impl.CloneOption>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>* * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Build kernel
+ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- make defconfig
+ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- make -j$(nproc)
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Publish Image to artifact server
+
+ftp -n &lt;&lt;EOF
+open fileserver
+user anonymous
+put arch/arm64/boot/Image artifacts/Image
+EOF</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Trigger build
+
+LAVA_SERVER=&apos;lava-server&apos;
+LAVA_USER=&apos;loic&apos;
+LAVA_TOKEN=&apos;http://fileserver/lava/lava.token&apos;
+LAVA_JOB_TEMPLATE=&apos;http://fileserver/lava/qemu-arm64-template.yml&apos;
+
+export KERNEL_URL=&apos;http://fileserver/artifacts/Image&apos;
+export INITRD_URL=&apos;http://fileserver/artifacts/initrd.img&apos;
+
+wget ${LAVA_JOB_TEMPLATE} -O lava_job_template.yaml
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+cat lava_job.yaml
+
+wget ${LAVA_TOKEN} -O lava.token
+lava-tool auth-add --token-file lava.token http://${LAVA_USER}@${LAVA_SERVER}
+lava-tool submit-job http://${LAVA_USER}@${LAVA_SERVER} lava_job.yaml
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

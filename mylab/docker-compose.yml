@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+
+# LAVA server (for testing) instance inheriting from ci-box-lava-master
+  lava-server:
+    container_name: lava-server
+    hostname: lava-server
+    extends:
+      file: ../ci-box/ci-box-lava-master/docker-compose.yml
+      service: lava-server
+    build:
+      args:
+        admin_username: loic
+        admin_password: password
+        workers: lava_worker0
+    ports:
+      - "80:80"
+    volumes:
+      - ./lava-devices:/etc/lava-server/dispatcher-config/devices
+
+# LAVA worker (for testing) instance inheriting from ci-box-lava-worker
+  lava-worker:
+    container_name: lava_worker0
+    hostname: lava_worker0
+    extends:
+      file: ../ci-box/ci-box-lava-worker/docker-compose.yml
+      service: lava-worker
+    build:
+      args:
+        server: lava-server
+
+# Jenkins (for building) instance inheriting from ci-box-jenkins
+  jenkins:
+    container_name: jenkins
+    hostname: jenkins
+    extends:
+      file: ../ci-box/ci-box-jenkins/docker-compose.yml
+      service: jenkins
+    build:
+      args:
+        admin_username: loic
+        admin_password: password
+        http_port: 8080
+        extra_packages: "build-essential gcc-aarch64-linux-gnu bc lava-tool ftp gettext-base"
+        plugins: "git mailer git-parameter build-timeout publish-over-ftp"
+    ports:
+      - "8080:8080"
+    volumes:
+      #- ./jenkins_workspace:/var/jenkins_home/workspace
+      - ./jenkins_jobs:/var/jenkins_home/jobs
+
+# File Server (FTP/HTPP) to store artifacts
+  fileserver:
+    container_name: fileserver
+    hostname: fileserver
+    extends:
+      file: ../ci-box/ci-box-fileserver/docker-compose.yml
+      service: fileserver
+    build:
+      args:
+        http_port: 80
+        ftp_port: 21
+        root: "/wwwroot"
+    ports:
+      - "8081:80"
+    volumes:
+      - ./files:/wwwroot

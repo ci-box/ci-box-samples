@@ -7,3 +7,6 @@
 [submodule "ci-box/ci-box-jenkins"]
 	path = ci-box/ci-box-jenkins
 	url = https://github.com/ci-box/ci-box-jenkins
+[submodule "ci-box/ci-box-fileserver"]
+	path = ci-box/ci-box-fileserver
+	url = https://github.com/ci-box/ci-box-fileserver
