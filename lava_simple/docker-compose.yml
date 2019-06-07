@@ -14,6 +14,7 @@ services:
         admin_user: admin
         admin_password: password
         workers: lava_simple_worker
+        dispatcher_ip: 192.168.1.35
     ports:
       - "8080:80"
     volumes:
@@ -29,3 +30,39 @@ services:
     build:
       args:
         server: lava_simple_server
+    ports:
+      - "69:69/udp"    # tftp
+      - "2049:2049"    # nfs4
+      - "111:111"     # rpcbind (nfs) can conflict disable on host
+      - "111:111/udp"     # rpcbind (nfs)
+      - "4242:4242"    # mountport (nfs)
+      - "4242:4242/udp"    # mountport (nfs)
+    volumes:
+      - ./overlays/etc/default/tftpd-hpa:/etc/default/tftpd-hpa
+      - ./overlays/root/entrypoint.d/tftpd-hpa.sh:/root/entrypoint.d/tftpd-hpa.sh
+      - ./overlays/root/entrypoint.d/ipconfig.sh:/root/entrypoint.d/ipconfig.sh
+      - ./overlays/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
+      - ./overlays/root/entrypoint.d/nfs.sh:/root/entrypoint.d/nfs.sh
+      - ./overlays/etc/exports.d/lava-dispatcher-nfs.exports:/etc/exports.d/lava-dispatcher-nfs.exports
+      - /tmp:/var/lib/lava/dispatcher/tmp #nfs export workaround
+      - /tmp:/tmp #nfs export workaround
+    privileged: true # TODO remove and add fine grained access
+
+# File Server (FTP/HTPP) to store artifacts/images
+  fileserver:
+    container_name: fileserver
+    hostname: fileserver
+    extends:
+      file: ../ci-box/ci-box-fileserver/docker-compose.yml
+      service: fileserver
+    build:
+      args:
+        http_port: 80
+        ftp_port: 21
+        root: "/wwwroot"
+    ports: # expose http/ftp to world
+      - "8081:80"
+      - "2121:21"
+
+    volumes:
+      - ./files:/wwwroot

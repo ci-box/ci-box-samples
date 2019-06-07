@@ -1,0 +1,8 @@
+{% extends 'rzn1d.jinja2' %}
+
+{% set power_off_command = '/bin/true off' %}
+{% set hard_reset_command = '/bin/true reboot' %}
+{% set power_on_command = '/bin/true on' %}
+
+# connect to ser2net on HOST instance (dockerhost normally defined in /etc/hosts)
+{% set connection_command = 'telnet dockerhost 2000' %}
