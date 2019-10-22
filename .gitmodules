@@ -1,9 +1,9 @@
 [submodule "ci-box/ci-box-lava-master"]
 	path = ci-box/ci-box-lava-master
-	url = git@github.com:ci-box/ci-box-lava-master.git
+	url = https://github.com/ci-box/ci-box-lava-master
 [submodule "ci-box/ci-box-lava-worker"]
 	path = ci-box/ci-box-lava-worker
-	url = git@github.com:ci-box/ci-box-lava-worker.git
+	url = https://github.com/ci-box/ci-box-lava-worker
 [submodule "ci-box/ci-box-jenkins"]
 	path = ci-box/ci-box-jenkins
 	url = https://github.com/ci-box/ci-box-jenkins
