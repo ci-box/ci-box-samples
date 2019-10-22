@@ -50,7 +50,7 @@ services:
 
 # File Server (FTP/HTPP) to store artifacts/images
   fileserver:
-    container_name: fileserver
+    container_name: lava_simple_fileserver
     hostname: fileserver
     extends:
       file: ../ci-box/ci-box-fileserver/docker-compose.yml
